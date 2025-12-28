@@ -1465,6 +1465,18 @@ class HospitalScheduleApp:
                   command=lambda: self.export_to_excel('employee'),
                   width=25).pack(side="left", padx=5)
         
+        # Row 3: Additional export buttons
+        export_row2 = ttk.Frame(control_frame)
+        export_row2.pack(fill="x", pady=5)
+        
+        ttk.Button(export_row2, text="📅 Xuất lịch trực (Theo phòng)",
+                  command=self.export_calendar_by_room,
+                  width=30).pack(side="left", padx=5)
+        
+        ttk.Button(export_row2, text="⏰ Xuất giờ làm nhân viên",
+                  command=self.export_employee_hours,
+                  width=30).pack(side="left", padx=5)
+        
         # ===== STATISTICS PANEL =====
         stats_frame = ttk.LabelFrame(main_frame, text="📈 Thống kê tổng quan", padding="10")
         stats_frame.pack(fill="x", pady=(0, 10))
@@ -1853,7 +1865,7 @@ class HospitalScheduleApp:
         for shift in self.shifts:
             # Shift name
             shift_cell = ws.cell(row=row, column=1)
-            shift_cell.value = f"{shift.name}\n({shift.start_hour}-{shift.end_hour})"
+            shift_cell.value = f"{shift.name}\n({shift.start}-{shift.end})"
             shift_cell.font = Font(bold=True)
             shift_cell.fill = shift_fill
             shift_cell.alignment = center_align
@@ -1920,6 +1932,86 @@ class HospitalScheduleApp:
                 if sd['employee'].name == emp_name
             ]
         return filtered
+    
+    def export_calendar_by_room(self):
+        """Xuất lịch trực theo khoa và phòng sử dụng hàm từ schedule-v7.py"""
+        if not self.best_schedule:
+            messagebox.showwarning("⚠️ Cảnh báo",
+                                  "Chưa có dữ liệu lịch trực!\n\n"
+                                  "Vui lòng chạy thuật toán GA trước.")
+            return
+        
+        # Chuyển đổi schedule về GA format
+        ga_schedule = self.convert_to_ga_format(self.best_schedule)
+        
+        # Chọn file
+        filename = filedialog.asksaveasfilename(
+            defaultextension=".xlsx",
+            filetypes=[("Excel files", "*.xlsx"), ("All files", "*.*")],
+            title="Xuất lịch trực theo phòng",
+            initialfile="lich_truc_theo_phong.xlsx"
+        )
+        
+        if filename:
+            try:
+                # Gọi hàm từ module GA
+                ga_module.export_calendar_to_excel(
+                    ga_schedule,
+                    self.employees,
+                    self.dept_to_rooms,
+                    self.shifts,
+                    self.days,
+                    filename
+                )
+                
+                messagebox.showinfo("✅ Thành công",
+                                   f"Đã xuất lịch trực theo phòng ra file:\n\n{filename}\n\n"
+                                   "File Excel chứa lịch trực chi tiết của từng phòng trong mỗi khoa.")
+            except Exception as e:
+                messagebox.showerror("❌ Lỗi",
+                                    f"Không thể xuất file!\n\n"
+                                    f"Chi tiết: {str(e)}")
+    
+    def export_employee_hours(self):
+        """Xuất thời gian làm việc của nhân viên sử dụng hàm từ schedule-v7.py"""
+        if not self.best_schedule:
+            messagebox.showwarning("⚠️ Cảnh báo",
+                                  "Chưa có dữ liệu lịch trực!\n\n"
+                                  "Vui lòng chạy thuật toán GA trước.")
+            return
+        
+        # Chuyển đổi schedule về GA format
+        ga_schedule = self.convert_to_ga_format(self.best_schedule)
+        
+        # Chọn file
+        filename = filedialog.asksaveasfilename(
+            defaultextension=".xlsx",
+            filetypes=[("Excel files", "*.xlsx"), ("All files", "*.*")],
+            title="Xuất giờ làm nhân viên",
+            initialfile="gio_lam_nhan_vien.xlsx"
+        )
+        
+        if filename:
+            try:
+                # Gọi hàm từ module GA
+                ga_module.export_employee_hours_to_excel(
+                    ga_schedule,
+                    self.employees,
+                    self.dept_to_rooms,
+                    self.shifts,
+                    self.days,
+                    filename
+                )
+                
+                messagebox.showinfo("✅ Thành công",
+                                   f"Đã xuất giờ làm nhân viên ra file:\n\n{filename}\n\n"
+                                   "File Excel chứa:\n"
+                                   "• Sheet 'Tổng hợp': Tổng hợp giờ làm của tất cả nhân viên\n"
+                                   "• Các sheet riêng: Chi tiết từng ca trực của từng nhân viên")
+            except Exception as e:
+                messagebox.showerror("❌ Lỗi",
+                                    f"Không thể xuất file!\n\n"
+                                    f"Chi tiết: {str(e)}")
 
 
 def main():
