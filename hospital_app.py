@@ -61,47 +61,47 @@ class HospitalScheduleApp:
         """Load cấu hình từ module schedule_v7"""
         return {
             # Thông tin chung
-            'NUM_DAYS': ga_module.NUM_DAYS,
+            'NUM_DAYS': int(ga_module.NUM_DAYS),
             'DEPARTMENTS': list(ga_module.DEPARTMENTS.keys()),
-            'DOCTORS_PER_DEPARTMENT': ga_module.DOCTORS_PER_DEPARTMENT,
-            'NURSES_PER_DEPARTMENT': ga_module.NURSES_PER_DEPARTMENT,
-            'SENIOR_DOCTOR_RATIO': ga_module.SENIOR_DOCTOR_RATIO,
-            'SENIOR_NURSE_RATIO': ga_module.SENIOR_NURSE_RATIO,
+            'DOCTORS_PER_DEPARTMENT': int(ga_module.DOCTORS_PER_DEPARTMENT),
+            'NURSES_PER_DEPARTMENT': int(ga_module.NURSES_PER_DEPARTMENT),
+            'SENIOR_DOCTOR_RATIO': float(ga_module.SENIOR_DOCTOR_RATIO),
+            'SENIOR_NURSE_RATIO': float(ga_module.SENIOR_NURSE_RATIO),
             
             # Hard constraints
-            'MIN_DOCTOR_PER_SHIFT': ga_module.MIN_DOCTOR_PER_SHIFT,
-            'MIN_NURSE_PER_SHIFT': ga_module.MIN_NURSE_PER_SHIFT,
-            'MIN_TOTAL_PER_SHIFT': ga_module.MIN_TOTAL_PER_SHIFT,
-            'MIN_EXPERIENCE_YEARS': ga_module.MIN_EXPERIENCE_YEARS,
+            'MIN_DOCTOR_PER_SHIFT': int(ga_module.MIN_DOCTOR_PER_SHIFT),
+            'MIN_NURSE_PER_SHIFT': int(ga_module.MIN_NURSE_PER_SHIFT),
+            'MIN_TOTAL_PER_SHIFT': int(ga_module.MIN_TOTAL_PER_SHIFT),
+            'MIN_EXPERIENCE_YEARS': int(ga_module.MIN_EXPERIENCE_YEARS),
             
             # Soft constraints
-            'MAX_HOURS_PER_WEEK': ga_module.MAX_HOURS_PER_WEEK,
-            'MIN_REST_HOURS': ga_module.MIN_REST_HOURS,
-            'MAX_HOURS_PER_MONTH': ga_module.MAX_HOURS_PER_MONTH,
-            'MIN_HOURS_PER_MONTH': ga_module.MIN_HOURS_PER_MONTH,
+            'MAX_HOURS_PER_WEEK': int(ga_module.MAX_HOURS_PER_WEEK),
+            'MIN_REST_HOURS': int(ga_module.MIN_REST_HOURS),
+            'MAX_HOURS_PER_MONTH': int(ga_module.MAX_HOURS_PER_MONTH),
+            'MIN_HOURS_PER_MONTH': int(ga_module.MIN_HOURS_PER_MONTH),
             
             # GA parameters
-            'POPULATION_SIZE': ga_module.POPULATION_SIZE,
-            'GENERATIONS': ga_module.GENERATIONS,
-            'ELITE_SIZE': ga_module.ELITE_SIZE,
-            'TOURNAMENT_K': ga_module.TOURNAMENT_K,
-            'PARENT_POOL_RATIO': ga_module.PARENT_POOL_RATIO,
-            'MUTATION_RATE': ga_module.MUTATION_RATE,
-            'STAGNATION_LIMIT': ga_module.STAGNATION_LIMIT,
-            'HILL_CLIMB_STEPS': ga_module.HILL_CLIMB_STEPS,
+            'POPULATION_SIZE': int(ga_module.POPULATION_SIZE),
+            'GENERATIONS': int(ga_module.GENERATIONS),
+            'ELITE_SIZE': int(ga_module.ELITE_SIZE),
+            'TOURNAMENT_K': int(ga_module.TOURNAMENT_K),
+            'PARENT_POOL_RATIO': float(ga_module.PARENT_POOL_RATIO),
+            'MUTATION_RATE': float(ga_module.MUTATION_RATE),
+            'STAGNATION_LIMIT': int(ga_module.STAGNATION_LIMIT),
+            'HILL_CLIMB_STEPS': int(ga_module.HILL_CLIMB_STEPS),
             
             # Penalty weights
-            'W_NO_DOCTOR': ga_module.W_NO_DOCTOR,
-            'W_NO_NURSE': ga_module.W_NO_NURSE,
-            'W_LESS_5': ga_module.W_LESS_5,
-            'W_NO_SENIOR': ga_module.W_NO_SENIOR,
-            'W_WRONG_DEPT': ga_module.W_WRONG_DEPT,
-            'W_DAY_OFF': ga_module.W_DAY_OFF,
-            'W_OVER_30H': ga_module.W_OVER_30H,
-            'W_NO_REST': ga_module.W_NO_REST,
-            'W_OVER_MONTHLY': ga_module.W_OVER_MONTHLY,
-            'W_UNDER_MONTHLY': ga_module.W_UNDER_MONTHLY,
-            'W_FAIRNESS': ga_module.W_FAIRNESS,
+            'W_NO_DOCTOR': int(ga_module.W_NO_DOCTOR),
+            'W_NO_NURSE': int(ga_module.W_NO_NURSE),
+            'W_LESS_5': int(ga_module.W_LESS_5),
+            'W_NO_SENIOR': int(ga_module.W_NO_SENIOR),
+            'W_WRONG_DEPT': int(ga_module.W_WRONG_DEPT),
+            'W_DAY_OFF': int(ga_module.W_DAY_OFF),
+            'W_OVER_30H': int(ga_module.W_OVER_30H),
+            'W_NO_REST': int(ga_module.W_NO_REST),
+            'W_OVER_MONTHLY': int(ga_module.W_OVER_MONTHLY),
+            'W_UNDER_MONTHLY': int(ga_module.W_UNDER_MONTHLY),
+            'W_FAIRNESS': int(ga_module.W_FAIRNESS),
         }
     
     def setup_main_ui(self):
@@ -1174,14 +1174,15 @@ class HospitalScheduleApp:
             # Tạo quần thể ban đầu
             self.log_console("🧬 Đang tạo quần thể ban đầu...\n", 'info')
             population = []
-            for i in range(self.config['POPULATION_SIZE']):
+            pop_size = int(self.config['POPULATION_SIZE'])
+            for i in range(pop_size):
                 if not self.is_running:
                     return
                 ind = ga_module.create_individual(self.employees, self.dept_to_rooms,
                                                   self.shifts, self.days)
                 population.append(ind)
                 if (i + 1) % 20 == 0:
-                    self.log_console(f"   Đã tạo {i + 1}/{self.config['POPULATION_SIZE']} cá thể\n", 'info')
+                    self.log_console(f"   Đã tạo {i + 1}/{pop_size} cá thể\n", 'info')
             
             self.log_console("✅ Hoàn thành tạo quần thể!\n\n", 'success')
             
@@ -1191,7 +1192,8 @@ class HospitalScheduleApp:
             self.log_console("🔄 Bắt đầu tiến hóa...\n\n", 'info')
             
             # Main GA loop
-            for gen in range(self.config['GENERATIONS']):
+            generations = int(self.config['GENERATIONS'])
+            for gen in range(generations):
                 if not self.is_running:
                     self.log_console("\n⏸️ Thuật toán đã bị dừng.\n", 'warning')
                     return
@@ -1211,21 +1213,21 @@ class HospitalScheduleApp:
                 self.history.append(fit)
                 
                 # Log progress
-                if gen % 10 == 0 or gen == self.config['GENERATIONS'] - 1:
+                if gen % 10 == 0 or gen == generations - 1:
                     elapsed = time.time() - start_time
                     self.log_console(
-                        f"Gen {gen + 1:3d}/{self.config['GENERATIONS']} | "
+                        f"Gen {gen + 1:3d}/{generations} | "
                         f"Fitness = {fit:,.0f} | "
                         f"Time: {elapsed:.1f}s\n",
                         'info'
                     )
                 
                 # Update UI
-                progress = ((gen + 1) / self.config['GENERATIONS']) * 100
+                progress = ((gen + 1) / generations) * 100
                 self.output_queue.put(('progress', progress, gen + 1, fit, elapsed))
                 
                 # Update chart every 5 generations
-                if gen % 5 == 0 or gen == self.config['GENERATIONS'] - 1:
+                if gen % 5 == 0 or gen == generations - 1:
                     self.output_queue.put(('chart', None))
                 
                 # Check improvement
@@ -1237,7 +1239,8 @@ class HospitalScheduleApp:
                     stagnation += 1
                 
                 # Hill climbing if stagnated
-                if stagnation >= self.config['STAGNATION_LIMIT']:
+                stagnation_limit = int(self.config['STAGNATION_LIMIT'])
+                if stagnation >= stagnation_limit:
                     self.log_console(f"   🔧 Hill Climbing triggered at Gen {gen + 1}\n", 'warning')
                     best = ga_module.hill_climb(best, self.employees, self.dept_to_rooms,
                                                 self.shifts, self.days,
@@ -1271,7 +1274,7 @@ class HospitalScheduleApp:
                 self.log_console(f"📊 Kết quả:\n", 'success')
                 self.log_console(f"   • Fitness tốt nhất: {best_fit:,.0f}\n", 'success')
                 self.log_console(f"   • Thời gian chạy: {elapsed:.1f}s ({elapsed/60:.1f} phút)\n", 'success')
-                self.log_console(f"   • Số thế hệ: {self.config['GENERATIONS']}\n\n", 'success')
+                self.log_console(f"   • Số thế hệ: {generations}\n\n", 'success')
                 
                 # Convert schedule to dashboard format
                 self.best_schedule = self.convert_schedule_format(self.best_schedule)
