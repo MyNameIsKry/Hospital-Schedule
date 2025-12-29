@@ -120,7 +120,7 @@ def generate_sample_data():
                 f"BS_{dept[:3]}_{i+1}", 
                 "doctor",
                 dept,
-                random.sample(days, 1),
+                random.sample(days, 0),
                 years_exp
             ))
             eid += 1
@@ -177,7 +177,6 @@ def get_room_department(room, dept_to_rooms):
 
 def create_individual(employees, dept_to_rooms, shifts, days):
     schedule = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
-    
     emp_shift_count = defaultdict(int)
     emp_hours = defaultdict(int)
     
@@ -545,7 +544,7 @@ def tournament_selection(scored):
     contenders.sort(key=lambda x: x[0])
     return contenders[0][1]
 
-
+# Tạo assignment hợp lệ cho 1 khoa
 def _create_valid_assignment(employees, dept, day):
     """Tạo assignment hợp lệ cho 1 khoa"""
     pool = [e for e in employees if e.department == dept and day not in e.days_off]
@@ -580,6 +579,7 @@ def _create_valid_assignment(employees, dept, day):
     return assignment
 
 
+# Lai ghép đồng đều giữa hai cá thể
 def crossover_uniform(a, b, employees, dept_to_rooms):
     c = copy.deepcopy(a)
     emp = {e.id: e for e in employees}
@@ -588,6 +588,7 @@ def crossover_uniform(a, b, employees, dept_to_rooms):
         for s in a[d].keys():
             for room in a[d][s].keys():
                 dept = get_room_department(room, dept_to_rooms)
+                
                 if random.random() < 0.5:
                     b_assignment = b[d][s][room]
                     
@@ -607,7 +608,7 @@ def crossover_uniform(a, b, employees, dept_to_rooms):
     
     return c
 
-
+# Ngẫu nhiên xáo trộn danh sách nhân viên trong các ca trực của một phòng để tạo sự đa dạng
 def mutate_scramble(ind, employees, dept_to_rooms, shifts, days, rate=0.3):
     if random.random() > rate:
         return ind
@@ -642,7 +643,7 @@ def mutate_scramble(ind, employees, dept_to_rooms, shifts, days, rate=0.3):
     
     return ind
 
-
+# Tìm cách cân bằng giờ làm việc giữa các nhân viên
 def mutate_balance_hours(ind, employees, dept_to_rooms, shifts, days, rate=0.3):
     if random.random() > rate:
         return ind
@@ -688,7 +689,7 @@ def mutate_balance_hours(ind, employees, dept_to_rooms, shifts, days, rate=0.3):
     
     return ind
 
-
+# Tìm kiếm nghiệm láng giềng tốt hơn bằng cách hoán đổi ca trực giữa hai ca ngẫu nhiên từ best individual
 def hill_climb(ind, employees, dept_to_rooms, shifts, days, steps=50):
     best = copy.deepcopy(ind)
     best_fit = fitness(best, employees, dept_to_rooms, shifts, days)
@@ -1033,7 +1034,7 @@ def main():
     stagnation = 0
     history = []
     
-    for gen in range(GENERATIONS):
+    for gen in range(GENERATIONS): #scocred = fitness, individual -> tuple 
         scored = [(fitness(ind, employees, dept_to_rooms, shifts, days), ind)
                   for ind in population]
         scored.sort(key=lambda x: x[0])
